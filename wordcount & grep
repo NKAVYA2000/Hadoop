@@ -1,0 +1,40 @@
+gedit test
+-Enter data ,save close
+cat test
+To put the local file into hadoop file system
+    hadoop fs –put test  /user/cloudera
+To verify whether or not the local file is loaded into hadoop file system
+    hadoop fs –ls /user/cloudera
+To check the content of loaded file
+    hadoop fs –cat /user/cloudera/test
+
+---------------------------------------------------------------------------------------------------
+-  To see the list of jar files available in hadoop
+         cd /usr/lib/hadoop-0.20-mapreduce/
+         ls
+
+-To see the content of jar file
+         hadoop jar /usr/lib/hadoop-0.20-mapreduce/hadoop-examples-2.0.0-mr1-cdh4.4.0.jar
+  --------------------------------------------------------------------------------------------------------------       
+-   To run word count program on loaded file and creating output file path. 
+        hadoop jar /usr/lib/hadoop-0.20-mapreduce/hadoop-   examples-2.0.0-mr1-cdh4.4.0.jar  wordcount  /user/cloudera/test  /user/cloudera/output1
+
+-  To verify output files
+    
+     hadoop fs –ls /user/cloudera/output1
+
+-   To see the content of output file
+      hadoop fs –cat /user/cloudera/output1/part*
+To see the output through browser
+    click on “HDFS Namenode”Browse the file system->user->cloudera->output1->part-r-00000
+  -------------------------------------------------------------------------------------------------------------------------------
+  - To run Grep program on loaded file and    creating output file path. 
+        hadoop jar /usr/lib/hadoop-0.20-mapreduce/hadoop-examples-2.0.0-mr1-cdh4.4.0.jar  grep  /user/cloudera/test  /user/cloudera/output2 cricket
+   
+   -  To verify output files
+    
+     hadoop fs –ls /user/cloudera/output2
+
+-   To see the content of output file
+      hadoop fs –cat /user/cloudera/output2/part*
+
