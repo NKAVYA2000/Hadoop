@@ -1,0 +1,19 @@
+SIZE(): To compute the number of elements based on any Pig data type.
+Q)Display doctor name along with the length of doctor name in each row.
+grunt> ans = foreach doc generate name,SIZE(name);
+grunt> dump ans; 
+(Milan,5)
+(Jay,3)
+(lalit,5)
+(Mohit,5)
+(Chauhan,7)
+(Suraj,5)
+******************************
+CONCAT(): To concatenate two or more expressions of same type.
+grunt> ans = foreach doc generate CONCAT(name,hosp);
+grunt> dump ans; 
+(Milanapollo)
+(Jayapollo)
+(lalitmanipal)
+(Mohitcolumbia)
+(Chauhannarayana
