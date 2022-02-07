@@ -1,0 +1,28 @@
+(Avg, Max, Min, Sum, Count)-COMPULSORY TO DO GROUP ALL.
+grunt> gr = group doc all;
+grunt> dump gr;
+*********************************************************************************************
+AVG():To compute the average of the numerical values within a bag.
+Q)Display hospital name, fees and average fees among all the hospital.
+grunt> result = foreach gr generate doc.hosp,doc.fees,AVG(doc.fees);
+*********************************************************************************************
+MAX():To calculate the highest value for a column in a single-column bag.
+Q)Display hospital name, fees and maximum fees among all the hospital.
+grunt> result = foreach gr generate doc.hosp,doc.fees,MAX(doc.fees);
+grunt> dump result;
+*********************************************************************************************
+MIN():To get the minimum (lowest) value (numeric or chararray) for a certain column in a single-column 
+bag.
+Q)Display hospital name, fees and minimum fees among all the hospital.
+grunt> result = foreach gr generate doc.hosp,doc.fees,MIN(doc.fees);
+grunt> dump result; 
+*********************************************************************************************
+SUM():To get the total of the numeric values of a column in a single-column bag.
+Q)Display hospital name, fees and total fees among all the hospital.
+grunt> result = foreach gr generate doc.hosp,doc.fees,SUM(doc.fees);
+grunt> dump result; 
+*********************************************************************************************
+COUNT(): To get the the number of tuples in a bag.
+Q)Display total no:of tuples/rows in relation.
+grunt> result = foreach gr generate COUNT(doc.id);
+grunt> dump result
