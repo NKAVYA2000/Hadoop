@@ -1,0 +1,281 @@
+
+To create a data file
+[cloudera@localhost ~]$ gedit data1;
+1|ramu|20
+2|krish|19
+3|sita|20
+4|john|21
+5|syed|22
+
+Save and Close
+****************************************************
+To connect to hive
+[cloudera@localhost ~]$ hive
+
+To create database
+hive> create database db2;  
+(to drop database, drop database db2)
+
+To see the list of databases
+hive> show databases;
+
+To make use of the database
+hive> use db2;
+
+
+To create table(main step) 
+hive> create table emp(id int,name string,age int)row format delimited fields
+ terminated by '|' lines terminated by '\n' stored as textfile;
+
+To see the list of tables
+hive> show tables;
+
+
+To load data into hive table from local system
+hive> load data local inpath '/home/cloudera/data1' into table emp;
+
+
+To see the content of the table
+hive> select * from emp;
+
+To rename the table
+alter table emp rename to employee;
+
+To check the table names
+hive> show tables;
+
+To add new columns to the table
+hive> alter table employee add columns(city string,pincode int);
+
+To see the structure of a table
+hive> describe employee;
+
+To rename the column in a table
+hive> alter table employee change city addr string;
+
+To see the structure of a table
+hive> describe employee;
+
+To select the rows based on condition
+hive> select * from employee where age>19;
+
+
+To create a table from another table
+hive> create table empd as select * from employee;
+hive> select * from empd;
+
+
+To limit the number of rows to be displayed
+hive> select * from employee limit 2;
+
+
+
+To use built-in functions
+hive> select upper(name) from employee;
+hive> select count(id) from employee;
+hive> select substr(name,1,3) from employee;-------------(first three letters of the name-substr(column_name,start_index,no.of_chars)
+
+
+To store the output of analysis to some other table
+hive> insert overwrite table empd select * from employee where age>20;
+hive> select * from empd;
+
+
+
+To join two tables
+hive> select * from employee e join empd d on (e.id=d.id);
+hive> select * from employee e left outer join empd d on (e.id=d.id);
+hive> select * from employee e right outer join empd d on (e.id=d.id);
+
+
+
+To create a view 
+hive> create view emp_v as select id,name from employee;
+hive> select * from emp_v;
+
+
+To store the output of analysis to HDFS file system
+hive> insert overwrite directory '/user/cloudera/output2' 
+                            select * from employee where age>20;
+
+
+
+To store the output of analysis to Local file system
+hive> insert overwrite local directory '/home/cloudera/output1' 
+                select * from employee where age>20;
+
+To quit from hive
+hive> quit;
+
+To check the output file in local system
+[cloudera@localhost ~]$ ls output1;
+[cloudera@localhost ~]$ cat output1/000000_0
+
+
+
+To check the output file in Hadoop
+[cloudera@localhost ~]$ hadoop fs -ls /user/cloudera/
+[cloudera@localhost ~]$ hadoop fs -cat /user/cloudera/output1/000000_0
+                            (or)
+Through Browser
+
+**********************EXAMPLES*********************************************************************************
+Q)Display details of employee whose employee id is greater than and equal to 1003 and doesn’t come from hyd.
+hive> select * from emp where id >=1003 and place !='hyd';			(OR)
+hive> select * from emp where id >=1003 and place not in ('hyd');
+1003	ram	d3	delhi	1986-02-11
+1004	milind	d4	bang	1988-03-21
+1005	jay	d2	bang	1988-03-22
+1008	rahul	d3	delhi	1990-12-23 
+
+Q)Display details of department whose id is less than d2 or department name is development.
+hive> select * from department where did<'d2' or dname='development';		(OR)
+hive> select * from department where did<'d2' or dname like 'development';		(OR)
+hive> select * from department where did<'d2' or dname like 'd%';
+d1	research	A-block
+d4	development	C-block
+
+Q)Display details of department whose department name’s second letter is ‘e’.
+hive> select * from department where did<'d2' or dname like '_e%';
+d1	research	A-block
+d3	testing	B-block
+d4	development	C-block
+
+Q)Display total no:of employees ,minimum of their employee no, avg of their employee no,max of their employee, sum of their employee from employee dataset.
+hive> select count(*),min(id),avg(id),max(id),sum(id) from emp;
+8	1001	1004.5  	1008	8036
+Q) Display department id, count of employees in each department 
+hive> select count(*),dept from emp group by dept;
+3	d1
+1	d2
+2	d3
+2	d4
+
+Q) Display department id,count of employees in each department and display rows those have count more than 2.
+hive> select count(*),dept from emp group by dept having count(*)>2;
+3	d1
+
+Q) Display department id,count of employees in each department in descending order of count.
+hive> select count(*) as c,dept from emp group by dept order by c desc;  
+3	d1
+2	d3
+2	d4
+1	d2
+
+Q) Display department id,count of employees in each department in descending order of count and display only first two rows.
+hive> select count(*) as c,dept from emp group by dept order by c desc limit 2;
+3	d1
+2	d3
+
+
+
+
+EXP 23: TO JOIN TWO TABLES
+hive> select  *  from emp e join department  d on (e.dept=d.did);
+001	hari	d1	chennai	1986-12-10	d1	research	A-block
+1002	teja	d1	hyd	1987-01-21	d1	research	A-block
+1007	naser	d1	hyd	1989-11-15	d1	research	A-block
+1005	jay	d2	bang	1988-03-22	d2	sales	A-block
+1003	ram	d3	delhi	1986-02-11	d3	testing	B-block
+1008	rahul	d3	delhi	1990-12-23	d3	testing	B-block
+1004	milind	d4	bang	1988-03-21	d4	development	C-block
+1006	naveen	d4	hyd	1986-04-12	d4	development	C-block
+hive> select  *  from emp e left outer join department  d on (e.dept=d.did);
+1001	hari	d1	chennai	1986-12-10	d1	research	A-block
+1002	teja	d1	hyd	1987-01-21	d1	research	A-block
+1007	naser	d1	hyd	1989-11-15	d1	research	A-block
+1005	jay	d2	bang	1988-03-22	d2	sales	A-block
+1003	ram	d3	delhi	1986-02-11	d3	testing	B-block
+1008	rahul	d3	delhi	1990-12-23	d3	testing	B-block
+1004	milind	d4	bang	1988-03-21	d4	development	C-block
+1006	naveen	d4	hyd	1986-04-12	d4	development	C-block
+1009 	jay	d6	hyd	1988-07-19	null	null		null
+
+NOTE!!if d6 department not  there ,then no matching on right side table values
+hive> select  *  from emp e right outer  join department  d on (e.dept=d.did);
+1001	hari	d1	chennai	1986-12-10	d1	research	A-block
+1002	teja	d1	hyd	1987-01-21	d1	research	A-block
+1007	naser	d1	hyd	1989-11-15	d1	research	A-block
+1005	jay	d2	bang	1988-03-22	d2	sales	A-block
+1003	ram	d3	delhi	1986-02-11	d3	testing	B-block
+1008	rahul	d3	delhi	1990-12-23	d3	testing	B-block
+1004	milind	d4	bang	1988-03-21	d4	development	C-block
+1006	naveen	d4	hyd	1986-04-12	d4	development	C-block
+NULL	NULL	NULL	NULL	NULL	d5	hr	A-block
+
+EXP 24: TO CREATE A VIEW 
+hive> create  view  emp_v  as select id,name from emp where id>1003;
+hive> select  * from emp_v;
+1004	milind
+1005	jay
+1006	naveen
+1007	naser
+1008	rahul
+
+TO DROP THE VIEW
+hive>drop view emp_v;
+
+To Use Built-In Functions
+
+hive> select  upper(name)  from emp;
+HARI
+TEJA
+RAM
+MILIND
+JAY
+NAVEEN
+NASER
+RAHUL
+
+hive> select  count(id)  from  emp;
+8
+
+hive> select  substr(name,1,3)  from  emp;  
+har
+tej
+ram
+mil
+jay
+nav
+nas
+rah
+
+hive> select  substr(name,2)  from  emp;
+ari
+eja
+am
+ilind
+ay
+aveen
+aser
+ahul
+
+hive> select  substr(name,3,2)  from  emp;
+ri
+ja
+m
+li
+y
+ve
+se
+hu
+Syntax: substr(string,starting index,no of character)
+Note: if no of characters not mentioned then it returns from the start position to the end of the string
+TO CREATE A TABLE FROM ANOTHER TABLE
+hive> create table abc  as select  * from emp;
+hive> select  *  from  abc;
+
+TO STORE THE OUTPUT OF ANALYSIS TO SOME OTHER TABLE
+hive> insert overwrite  table  abc  select * from emp where id>1003;
+hive> select * from abc;
+004	Milind	D4	Bang	1988-03-21
+1005	Jay	D2	Bang	1988-03-22
+1006	Naveen	D4	Hyd	1986-04-12
+1007	Naser	D1	Hyd	1989-11-15
+1008	Rahul	D3	Delhi	1990-12-23
+
+
+
+
+
+
