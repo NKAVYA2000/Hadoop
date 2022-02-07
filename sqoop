@@ -1,0 +1,161 @@
+-  open the terminal
+-  To start mysql services
+              sudo service mysqld start
+-  To connect to mysql
+        	    mysql –u root 
+
+-  To create Database
+        	    create database sampledb;
+-  To show the existing data bases
+	        show databases;
+ -    To choose the database you want to use
+    		use sampledb;
+-To create tables(one table with only int compulsory if incremental append is asked)
+     	create table std(rno int);
+     	create table emp(id int, name char);
+-To insert records into the tables
+             insert into stud values (101), (102), (103), (104), (105);
+             insert into emp values (1,’a’), (2,’b’), (3,’c’), (4,’d’), (5,’e’);
+             Exit 
+-----------------------------------------------------------------------------------------------------------------------------------------------
+    (a) List-database        (b) List-table         (c) Eval
+
+(a) To list the databases
+          sqoop list-databases  --connect  “jdbc:mysql://localhost”
+                    --username  root 
+(b) To list the tables
+          sqoop list-tables  --connect "jdbc:mysql://localhost/sampledb"  
+                      --username  root  
+(c)eval
+sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root 
+                       --query "select * from student where name like 'R%'"
+
+                sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root 
+                       --query "select count(*) from stud“
+
+                sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root 
+                       --query "select * from emp where id>2"
+ 
+		 sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root 
+                       --query “insert into emp values(5,'y')"
+ --------------------------------------------------------------------------------------------------------------------------------------
+  3. Import of tables from Mysql database to hdfs
+    (a) Import of all tables
+     (b) Import of specific tables to default directory /target   
+         directory
+    (c) Import of subset of tables using ‘where’ clause 
+    (d) Incremental import
+
+
+******************(a)Import of all tables***************************
+(a) Import of all tables:
+         sqoop  import-all-tables  --connect   
+              "jdbc:mysql://localhost/sampledb"
+                  --username  root   -m  1
+      - To check whether or not tables are imported
+             hadoop  fs  -ls  /user/cloudera
+       - To check for a particular table
+                 hadoop  fs  -ls  /user/cloudera/stud
+                 hadoop  fs  -ls  /user/cloudera/emp
+      - To see the records in a table
+               hadoop  fs  -cat  /user/cloudera/stud/part-m-00000
+      ******************************************************************
+       hadoop  fs  -rm  -R  /user/cloudera/stud
+             hadoop  fs  -rm  -R  /user/cloudera/emp
+
+     *********(b1)Import of specific tables to default directory********************
+      -To import specific table to the default directory
+         sqoop import  --connect  "jdbc:mysql://localhost/sampledb“
+            --username root   --table emp  -m 1
+
+      - To check the imported table in the default directory
+           hadoop  fs  -ls  /user/cloudera/
+             hadoop fs  -ls  /user/cloudera/emp
+             hadoop fs -cat /user/cloudera/emp/part-m-00000
+   *******************(b2)Import of specific tables to specific directory**************
+  -To make a new directory
+           hadoop fs -mkdir /user/cloudera/hp2(perform below commands first,if new directory is not creating,then use this)
+             
+
+-To import specific table to the target directory
+     sqoop  import  --connect "jdbc:mysql://localhost/sampledb" 
+     --username root --table emp
+     --target-dir  /user/cloudera/hp2/sqooplab1 –m 1
+
+-To check the imported table in the target directory
+             hadoop  fs  -ls  /user/cloudera/hp2
+             hadoop fs  -ls  /user/cloudera/hp2/sqooplab1
+             hadoop fs -cat /user/cloudera/hp2/sqooplab1/part*
+             
+   *************************************************************************************************************
+   *************************(c) Import of subset of tables using ‘where’ clause *******************
+   To import subset of data 
+     sqoop  import --connect  "jdbc:mysql://localhost/sampledb" 
+         --username root   
+           --table emp  --where "id>'2'" 
+          --target-dir  /user/cloudera/hp2/sqooplab2 –m 1
+
+To check the imported table in the target directory
+             hadoop  fs  -ls  /user/cloudera/hp2
+             hadoop fs  -ls  /user/cloudera/hp2/sqooplab2
+             hadoop fs -cat /user/cloudera/hp2/sqooplab2/part*
+             
+  *****************************************************************************************
+  ***************************(d) Incremental import******************************************
+
+- To insert new records into the table
+ sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root 
+                       --query “insert into stud values (106),(107)“
+
+- To import new records into hadoop
+   sqoop import --connect "jdbc:mysql://localhost/sampledb" 
+    --username root   --table stud 
+     --target-dir  /user/cloudera/hp2/sqooplab1
+        --incremental append   --check-column rno 
+               --last-value 105 –m 1
+  *******************************************************************************
+4. Export files from hdfs to mysql database
+- To create a file in local file system
+       gedit test 
+       1,a
+       2,b
+       3,c
+    save & exit
+     
+To put the local file into hadoop file system
+    hadoop fs –put test  /user/cloudera/
+
+To verify whether or not the local file is loaded into hadoop file system
+    hadoop fs –ls /user/cloudera/
+
+To check the content of loaded file
+    hadoop fs –cat /user/cloudera/test
+    
+  To create a table structure in mysql
+  sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root  
+                    --query “create table test_table(a int,b char)“
+
+To export the file from hadoop to mysql
+    sqoop export --connect  "jdbc:mysql://localhost/sampledb" 
+     --username root   --table test_table
+     --export-dir  /user/cloudera/test
+
+To check the table data in mysql
+  sqoop eval --connect "jdbc:mysql://localhost/sampledb" 
+                     --username root 
+                     --query “select * from  test_table“
+
+
+             
+
+
+
+
+     
+
