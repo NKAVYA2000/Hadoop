@@ -1,0 +1,33 @@
+-To create a data file
+[cloudera@localhost ~]$ gedit datafile7
+hai hello how are you
+are you fine
+the world is very beautiful
+my name is raj
+i live in bangalore
+i am fine
+Save & Close
+
+-To put this file into hadoop
+[cloudera@localhost ~]$ hadoop fs -put datafile7 /user/cloudera/
+*****************************************************
+-To create a pig latin script
+[cloudera@localhost ~]$ gedit wcount7.pig
+file = load '/user/cloudera/datafile7' as (line:chararray);
+t = foreach file generate flatten(TOKENIZE(line)) as word;
+gr = group t by word;
+wc = foreach gr generate group,COUNT(t.word);
+dump wc;
+store wc into '/user/cloudera/script_o7' using PigStorage();
+*******************************************************
+
+Save & Close
+To run the pig latin script
+[cloudera@localhost ~]$ pig wcount7.pig
+
+To check the output
+[cloudera@localhost ~]$ hadoop fs -ls /user/cloudera/script_o7
+Found 3 items
+-rw-r--r-- 3 cloudera cloudera 0 2018-03-28 00:24 /user/cloudera/script_o7/_SUCCESS
+drwxr-xr-x - cloudera cloudera 0 2018-03-28 00:23 /user/cloudera/script_o7/_logs
+-rw-r--r-- 3 cloudera cloudera 128 2018-03-28 00:24 /user/cloudera/script_o7/part-r-0000
