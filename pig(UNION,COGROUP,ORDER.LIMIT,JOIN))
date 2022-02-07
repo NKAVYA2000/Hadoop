@@ -1,0 +1,54 @@
+-UNION OPERATOR
+
+grunt> result = union doc1,doc2;
+grunt> dump result;
+***********************************************************************************************
+SPLIT OPERATOR
+
+grunt> split doc1 into senior if exp>15,junior if (exp>5 and exp<=15);
+grunt> dump senior;
+grunt> dump junior;
+*****************************************************************************************************
+ORDER BY OPERATOR
+
+-------Syntax: Relation_name2 = ORDER Relatin_name1 BY Field (ASC|DESC);
+grunt> a = order doc1 by name asc;
+grunt> dump a;
+*********************************************************************************************************
+LIMIT OPERATOR
+
+-------------Syntax:Result = LIMIT Relation_name required number of tuples;
+grunt> a = limit doc1 2;
+grunt> dump a;
+(Jay,1002,10,apollo,500)
+(Milan,1001,5,apollo,500)
+*******************************************************************************************
+GROUP OPERATOR
+The GROUP operator is used to group the data in a relation. It collects the data having the same key.
+Syntax
+grunt> Group_data = GROUP Relation_name BY age;
+Q) Display the details of the doctors hospital wise.
+grunt> gr = group doc1 by hosp;
+grunt> dump gr;
+*********************************************************************
+Grouping By Multiple Columns
+Q) Display the details of the doctors hospital wise with same fees
+grunt> a = group doc1 by (hosp,fees);
+grunt> dump a;
+************************************************************************************************
+CO-GROUP OPERATOR
+The COGROUP operator works more or less in the same way as the GROUP operator. The only difference between the two 
+operators is that the group operator is normally used with one relation, while the cogroup operator is used in statements 
+involving two or more relations.
+
+grunt> a = cogroup doc1 by exp,emp1 by exp;
+grunt> dump a; 
+*******************************************************************************************
+JOIN OPERATOR
+
+Self-Join/Inner join
+grunt> a = join doc by id,doc1 by id;
+grunt> dump a;
+Q)display entire details of patient and their corresponding doctor
+grunt> a = join doc1 by id, pat by docid;
+grunt> dump a;
