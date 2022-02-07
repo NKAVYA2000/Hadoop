@@ -1,0 +1,18 @@
+(a)-Browser-hdfs,mapreduce,sqoop-good health
+-sudo jps
+Check name node,secondary name node,data node
+
+(b) To check java path
+      - open the terminal
+      - cd /usr/lib/jvm
+      - ls
+
+(c) To check hadoop location
+      - cd /usr/lib/hadoop-0.20-mapreduce/
+      - ls
+
+(d) To verify hadoop installation files
+     - cd conf
+     - ls
+ (e) new terminal:
+ sudo -u hdfs hdfs dfsadmin -safemode leave
