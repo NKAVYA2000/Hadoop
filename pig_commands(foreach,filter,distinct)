@@ -1,0 +1,43 @@
+EXPERIMENT 3: Filtering – filter operator,  For Each Generate operator, Distinct Operator
+
+
+grunt> A = filter student by city == 'bangalore';
+grunt> dump A;
+
+(raju,bangalore,24)
+(ravi,bangalore,23)
+
+
+grunt> c = foreach student generate*;
+grunt> dump c;
+
+(ram,chennai,20)
+(raju,bangalore,24)
+(ravi,bangalore,23)
+(rahul,chennai,23)
+(krish,mangalore,21)
+(john,chennai,23)
+(sita,delhi,26)
+(anu,delhi,25)
+(,,)
+
+grunt> C = foreach student generate city;
+grunt> dump C;
+
+(chennai)
+(bangalore)
+(bangalore)
+(chennai)
+(mangalore)
+(chennai)
+(delhi)
+(delhi)
+()
+grunt> d = distinct C;
+grunt> dump d;
+
+(delhi)
+(chennai)
+(bangalore)
+(mangalore)
+()
