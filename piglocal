@@ -1,0 +1,40 @@
+EXPERIMENT 1: Loading and storing -  from/to local file system, from/to hdfs
+
+[cloudera@localhost ~]$ gedit datafile
+
+1,a
+2,b
+3,c
+4,d
+
+save and close
+[cloudera@localhost ~]$ cat datafile
+1,a
+2,b
+3,c
+4,d
+
+[cloudera@localhost ~]$ pig -x local
+
+
+grunt> bag1 = load '/home/cloudera/datafile' using PigStorage(',') as (id:int,name:chararray);
+grunt> dump bag1;
+
+----Only if asked use below step-------------------
+grunt> bag2 = bag1;
+grunt> dump bag2;
+-------------------------------------------------
+grunt> store bag1 into '/home/cloudera/output1' using PigStorage(',');
+
+grunt> quit
+[cloudera@localhost ~]$ ls
+datafile  Desktop    Downloads  emp.java  mentee.java  Music    Pictures  stu1       stud.java  tea.java   test1             Videos
+datasets  Documents  eclipse    lib       mentor.java  output1  Public    stu1.java  stu.java   Templates  test1_table.java  workspace
+[cloudera@localhost ~]$ ls output1
+part-m-00000  _SUCCESS
+[cloudera@localhost ~]$ cat output1/part*
+1,a
+2,b
+3,c
+4,d
+
