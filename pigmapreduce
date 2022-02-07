@@ -1,0 +1,267 @@
+
+[cloudera@localhost ~]$ gedit datafile2
+ram,chennai,20
+raju,bangalore,24
+ravi,bangalore,23
+rahul,chennai,23
+krish,mangalore,21
+john,chennai,23
+sita,delhi,26
+anu,delhi,25
+save and close
+[cloudera@localhost ~]$ hadoop fs -put datafile2 /user/cloudera
+[cloudera@localhost ~]$ hadoop fs -ls /user/cloudera
+Found 12 items
+drwx------   - cloudera cloudera          0 2019-12-17 22:29 /user/cloudera/.Trash
+drwx------   - cloudera cloudera          0 2021-10-19 07:07 /user/cloudera/.staging
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 07:07 /user/cloudera/_sqoop
+-rw-r--r--   3 cloudera cloudera        131 2021-10-24 04:15 /user/cloudera/datafile2
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 06:44 /user/cloudera/hat
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 06:52 /user/cloudera/hat1
+drwxr-xr-x   - cloudera cloudera          0 2021-10-15 01:19 /user/cloudera/hp2
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 06:39 /user/cloudera/mentor
+drwxr-xr-x   - cloudera cloudera          0 2021-10-12 01:57 /user/cloudera/stu
+-rw-r--r--   3 cloudera cloudera         12 2021-10-12 02:11 /user/cloudera/stu1
+drwxr-xr-x   - cloudera cloudera          0 2021-10-12 01:58 /user/cloudera/tea
+-rw-r--r--   3 cloudera cloudera         12 2021-10-15 01:43 /user/cloudera/test1
+[cloudera@localhost ~]$ hadoop fs -cat /user/cloudera/datafile2
+ram,chennai,20
+raju,bangalore,24
+ravi,bangalore,23
+rahul,chennai,23
+krish,mangalore,21
+john,chennai,23
+sita,delhi,26
+anu,delhi,25
+
+[cloudera@localhost ~]$ pig -x mapreduce
+
+grunt> student = load '/user/cloudera/datafile2' using PigStorage(',') as (name:chararray, city:chararray,age:int);
+grunt>dump student;
+--------not necessary below-----
+grunt> a = student;
+grunt> dump a;
+--------------------------------
+
+grunt> store student into '/user/cloudera/output1' using PigStorage(',');
+
+grunt>quit 
+
+hadoop fs -ls /user/cloudera
+Found 13 items
+drwx------   - cloudera cloudera          0 2019-12-17 22:29 /user/cloudera/.Trash
+drwx------   - cloudera cloudera          0 2021-10-24 04:36 /user/cloudera/.staging
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 07:07 /user/cloudera/_sqoop
+-rw-r--r--   3 cloudera cloudera        131 2021-10-24 04:15 /user/cloudera/datafile2
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 06:44 /user/cloudera/hat
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 06:52 /user/cloudera/hat1
+drwxr-xr-x   - cloudera cloudera          0 2021-10-15 01:19 /user/cloudera/hp2
+drwxr-xr-x   - cloudera cloudera          0 2021-10-19 06:39 /user/cloudera/mentor
+drwxr-xr-x   - cloudera cloudera          0 2021-10-24 04:36 /user/cloudera/output1
+drwxr-xr-x   - cloudera cloudera          0 2021-10-12 01:57 /user/cloudera/stu
+-rw-r--r--   3 cloudera cloudera         12 2021-10-12 02:11 /user/cloudera/stu1
+drwxr-xr-x   - cloudera cloudera          0 2021-10-12 01:58 /user/cloudera/tea
+-rw-r--r--   3 cloudera cloudera         12 2021-10-15 01:43 /user/cloudera/test1
+hadoop fs -cat /user/cloudera/output1/part*
+ram,chennai,20
+raju,bangalore,24
+ravi,bangalore,23
+rahul,chennai,23
+krish,mangalore,21
+john,chennai,23
+sita,delhi,26
+anu,delhi,25
+
+------------------------Not important below------------------------------------------------------------
+EXPERIMENT 2:Diagnostic operator – Dump, Describe, Explain, illustrate
+
+
+grunt> describe student;
+student: {name: chararray,city: chararray,age: int}
+grunt> explain student;
+#-----------------------------------------------
+# New Logical Plan:
+#-----------------------------------------------
+student: (Name: LOStore Schema: name#25:chararray,city#26:chararray,age#27:int)
+|
+|---student: (Name: LOForEach Schema: name#25:chararray,city#26:chararray,age#27:int)
+    |   |
+    |   (Name: LOGenerate[false,false,false] Schema: name#25:chararray,city#26:chararray,age#27:int)ColumnPrune:InputUids=[25, 27, 26]ColumnPrune:OutputUids=[25, 27, 26]
+    |   |   |
+    |   |   (Name: Cast Type: chararray Uid: 25)
+    |   |   |
+    |   |   |---name:(Name: Project Type: bytearray Uid: 25 Input: 0 Column: (*))
+    |   |   |
+    |   |   (Name: Cast Type: chararray Uid: 26)
+    |   |   |
+    |   |   |---city:(Name: Project Type: bytearray Uid: 26 Input: 1 Column: (*))
+    |   |   |
+    |   |   (Name: Cast Type: int Uid: 27)
+    |   |   |
+    |   |   |---age:(Name: Project Type: bytearray Uid: 27 Input: 2 Column: (*))
+    |   |
+    |   |---(Name: LOInnerLoad[0] Schema: name#25:bytearray)
+    |   |
+    |   |---(Name: LOInnerLoad[1] Schema: city#26:bytearray)
+    |   |
+    |   |---(Name: LOInnerLoad[2] Schema: age#27:bytearray)
+    |
+    |---student: (Name: LOLoad Schema: name#25:bytearray,city#26:bytearray,age#27:bytearray)RequiredFields:null
+
+#-----------------------------------------------
+# Physical Plan:
+#-----------------------------------------------
+student: Store(fakefile:org.apache.pig.builtin.PigStorage) - scope-37
+|
+|---student: New For Each(false,false,false)[bag] - scope-36
+    |   |
+    |   Cast[chararray] - scope-28
+    |   |
+    |   |---Project[bytearray][0] - scope-27
+    |   |
+    |   Cast[chararray] - scope-31
+    |   |
+    |   |---Project[bytearray][1] - scope-30
+    |   |
+    |   Cast[int] - scope-34
+    |   |
+    |   |---Project[bytearray][2] - scope-33
+    |
+    |---student: Load(/user/cloudera/datafile2:PigStorage(',')) - scope-26
+
+2021-10-24 04:48:49,715 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:48:49,722 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:48:49,723 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+#--------------------------------------------------
+# Map Reduce Plan                                  
+#--------------------------------------------------
+MapReduce node scope-38
+Map Plan
+student: Store(fakefile:org.apache.pig.builtin.PigStorage) - scope-37
+|
+|---student: New For Each(false,false,false)[bag] - scope-36
+    |   |
+    |   Cast[chararray] - scope-28
+    |   |
+    |   |---Project[bytearray][0] - scope-27
+    |   |
+    |   Cast[chararray] - scope-31
+    |   |
+    |   |---Project[bytearray][1] - scope-30
+    |   |
+    |   Cast[int] - scope-34
+    |   |
+    |   |---Project[bytearray][2] - scope-33
+    |
+    |---student: Load(/user/cloudera/datafile2:PigStorage(',')) - scope-26--------
+Global sort: false
+----------------
+
+grunt> illustrate student;
+2021-10-24 04:52:17,411 [main] WARN  org.apache.hadoop.conf.Configuration - fs.default.name is deprecated. Instead, use fs.defaultFS
+2021-10-24 04:52:17,414 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to hadoop file system at: hdfs://localhost.localdomain:8020
+2021-10-24 04:52:17,414 [main] WARN  org.apache.hadoop.conf.Configuration - io.bytes.per.checksum is deprecated. Instead, use dfs.bytes-per-checksum
+2021-10-24 04:52:17,415 [main] WARN  org.apache.hadoop.conf.Configuration - dfs.https.address is deprecated. Instead, use dfs.namenode.https-address
+2021-10-24 04:52:17,417 [main] INFO  org.apache.pig.backend.hadoop.executionengine.HExecutionEngine - Connecting to map-reduce job tracker at: localhost.localdomain:8021
+2021-10-24 04:52:17,587 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:17,592 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:17,592 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:17,601 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:17,602 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:17,603 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:17,609 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:17,610 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:17,655 [main] INFO  org.apache.pig.data.SchemaTupleFrontend - Key [pig.schematuple] is false, will not generate code.
+2021-10-24 04:52:17,656 [main] INFO  org.apache.pig.data.SchemaTupleFrontend - Starting process to move generated code to distributed cacche
+2021-10-24 04:52:17,656 [main] INFO  org.apache.pig.data.SchemaTupleFrontend - Setting key [pig.schematuple.classes] with classes to deserialize []
+2021-10-24 04:52:17,764 [main] INFO  org.apache.pig.data.SchemaTupleBackend - Key [pig.schematuple] was not set... will not generate code.
+2021-10-24 04:52:17,781 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:17,787 [main] INFO  org.apache.hadoop.mapreduce.lib.input.FileInputFormat - Total input paths to process : 1
+2021-10-24 04:52:17,787 [main] INFO  org.apache.pig.backend.hadoop.executionengine.util.MapRedUtil - Total input paths to process : 1
+2021-10-24 04:52:17,820 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:17,828 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:17,828 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:17,832 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:17,832 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:17,832 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:17,835 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:17,835 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,017 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,054 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:18,061 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,067 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,067 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,068 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,068 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,068 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,071 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,071 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,111 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,128 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:18,134 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,137 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,137 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,145 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,147 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,147 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,154 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,154 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,350 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,366 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:18,369 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,374 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,374 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,375 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,375 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,387 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,390 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,390 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,518 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,542 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+(anu,delhi,25)
+2021-10-24 04:52:18,592 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,595 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,595 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,608 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,609 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,609 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,622 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,622 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,743 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,751 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:18,751 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,759 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,764 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,767 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,767 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,767 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,777 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,777 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,830 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,833 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:18,833 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,834 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,834 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,835 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,835 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,835 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,844 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,844 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,895 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:18,906 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+2021-10-24 04:52:18,907 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRCompiler - File concatenation threshold: 100 optimistic? false
+2021-10-24 04:52:18,916 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size before optimization: 1
+2021-10-24 04:52:18,917 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MultiQueryOptimizer - MR plan size after optimization: 1
+2021-10-24 04:52:18,918 [main] INFO  org.apache.pig.tools.pigstats.ScriptState - Pig script settings are added to the job
+2021-10-24 04:52:18,918 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - mapred.job.reduce.markreset.buffer.percent is not set, set to default 0.3
+2021-10-24 04:52:18,918 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Using reducer estimator: org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator
+2021-10-24 04:52:18,926 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.InputSizeReducerEstimator - BytesPerReducer=1000000000 maxReducers=999 totalInputFileSize=131
+2021-10-24 04:52:18,927 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.JobControlCompiler - Setting Parallelism to 1
+2021-10-24 04:52:18,987 [main] WARN  org.apache.pig.data.SchemaTupleBackend - SchemaTupleBackend has already been initialized
+2021-10-24 04:52:19,001 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapOnly$Map - Aliases being processed per job phase (AliasName[line,offset]): M: student[1,10] C:  R: 
+--------------------------------------------------------------------
+| student     | name:chararray    | city:chararray    | age:int    | 
+--------------------------------------------------------------------
+|             | anu               | delhi             | 25         | 
+--------------------------------------------------------------------
+
