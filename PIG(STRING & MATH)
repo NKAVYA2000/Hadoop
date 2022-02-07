@@ -1,0 +1,255 @@
+STRING BUILT_IN FUNCTIONS
+SUBSTRING()
+Returns a substring from a given string.
+Syntax:
+SUBSTRING(string, startIndex, ending index+1)
+grunt> ans = foreach doc generate (id,name),SUBSTRING (name, 0 , 2);
+grunt> dump ans;
+((1001,Milan),Mi)
+((1002,Jay),Ja)
+((1003,lalit),la)
+((1004,Mohit),Mo)
+((1005,Chauhan),Ch)
+((1006,Suraj),Su)
+---------------------------------------------------------------------------------------------
+INDEXOF():Returns the first occurrence of a character in a string, searching forward from a start index.
+Syntax:
+INDEXOF(string, ‘character’, startIndex)
+grunt> ans = foreach doc generate (id,name),INDEXOF(name,'a',0); 
+grunt> dump ans;
+((1001,Milan),3)
+((1002,Jay),1)
+((1003,lalit),1)
+((1004,Mohit),-1)
+((1005,Chauhan),2)
+((1006,Suraj),3)
+---------------------------------------------------------------------------------------------
+LCFIRST(): Converts the first character in a string to lower case.
+Syntax:
+LCFIRST(expression)
+grunt> ans = foreach doc generate (id,name),LCFIRST(name); 
+grunt> dump ans; 
+((1001,Milan),milan)
+((1002,Jay),jay)
+((1003,lalit),lalit)
+((1004,Mohit),mohit)
+((1005,Chauhan),chauhan)
+((1006,Suraj),suraj)
+---------------------------------------------------------------------------------------------
+UCFIRST(): Returns a string with the first character converted to upper case.
+Syntax:
+UCFIRST(expression)
+grunt> ans = foreach doc generate (id,hosp),UCFIRST(hosp); 
+grunt> dump ans; 
+((1001,apollo),Apollo)
+((1002,apollo),Apollo)
+((1003,manipal),Manipal)
+((1004,columbia),Columbia)
+((1005,narayana),Narayana)
+((1006,manipal),Manipal)
+---------------------------------------------------------------------------------------------
+UPPER():Returns a string converted to upper case
+Syntax:
+UPPER(expression)
+grunt> ans = foreach doc generate (id,name),UPPER(name); 
+grunt> dump ans;
+((1001,Milan),MILAN)
+((1002,Jay),JAY)
+((1003,lalit),LALIT)
+((1004,Mohit),MOHIT)
+((1005,Chauhan),CHAUHAN)
+((1006,Suraj),SURAJ)
+---------------------------------------------------------------------------------------------
+LOWER(): Converts all characters in a string to lower case.
+Synatx:
+LOWER(expression)
+grunt> ans = foreach doc generate (id,name),LOWER(name);
+grunt> dump ans;
+((1001,Milan),milan)
+((1002,Jay),jay)
+((1003,lalit),lalit)
+((1004,Mohit),mohit)
+((1005,Chauhan),chauhan)
+((1006,Suraj),suraj)
+---------------------------------------------------------------------------------------------
+REPLACE(): To replace existing characters in a string with new characters.
+Syntax:
+REPLACE(string, ‘oldChar’, ‘newChar’);
+grunt> ans = foreach doc generate (id,hosp),REPLACE(hosp,'apollo','appo');
+grunt> dump ans; 
+((1001,apollo),appo)
+((1002,apollo),appo)
+((1003,manipal),manipal)
+((1004,columbia),columbia)
+((1005,narayana),narayana)
+((1006,manipal),manipal)
+**************************************************************************************************************************
+BUILT_IN MATH FUNCTIONS
+$gedit math1.txt
+5
+16
+9
+2.5
+2
+3.5
+3.14
+-2.2
+grunt> mat = load '/home/cloudera/ math1.txt' using PigStorage(',') as 
+(data:float);
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ABS(): ABSOLUTE VALUE
+To get the absolute value of an expression
+grunt> ans = foreach mat generate data,ABS(data); 
+grunt> dump ans;
+(5.0,5.0)
+(16.0,16.0)
+(9.0,9.0)
+(2.5,2.5)
+(2.0,2.0)
+(3.5,3.5)
+(3.14,3.14)
+(-2.2,2.2)
+---------------------------------------------------------------------------------------------
+CBRT() : cube root
+This function is used to get the cube root of an expression.
+grunt> ans = foreach mat generate data,CBRT(data);
+grunt> dump ans; 
+(5.0,1.709975946676697)
+(16.0,2.5198420997897464)
+(9.0,2.080083823051904)
+(2.5,1.3572088082974532)
+(2.0,1.2599210498948732)
+(3.5,1.5182944859378313)
+(3.14,1.464344366810533)
+(-2.2,-1.300591456247907)
+---------------------------------------------------------------------------------------------
+SBRT() : square root
+To get the positive square root of an expression.
+grunt> ans = foreach mat generate data,SQRT(data);
+grunt> dump ans; 
+(5.0,2.23606797749979)
+(16.0,4.0)
+(9.0,3.0)
+(2.5,1.5811388300841898)
+(2.0,1.4142135623730951)
+(3.5,1.8708286933869707)
+(3.14,1.7720045442673602)
+(-2.2,NaN)
+---------------------------------------------------------------------------------------------
+COS():
+This function is used to get the trigonometric cosine of an expression.
+grunt> ans = foreach mat generate data,COS(data);
+grunt> dump ans; 
+(5.0,0.28366218546322625)
+(16.0,-0.9576594803233847)
+(9.0,-0.9111302618846769)
+(2.5,-0.8011436155469337)
+(2.0,-0.4161468365471424)
+(3.5,-0.9364566872907963)
+(3.14,-0.99999873189461)
+(-2.2,-0.5885011558074578)
+---------------------------------------------------------------------------------------------
+SIN():
+To get the sine of an expression.
+grunt> ans = foreach mat generate data,SIN(data);
+grunt> dump ans; 
+(5.0,-0.9589242746631385)
+(16.0,-0.2879033166650653)
+(9.0,0.4121184852417566)
+(2.5,0.5984721441039564)
+(2.0,0.9092974268256817)
+(3.5,-0.35078322768961984)
+(3.14,0.0015925480124451862)
+(-2.2,-0.8084963757576692)
+---------------------------------------------------------------------------------------------
+TAN():
+To get the trigonometric tangent of an angle.
+grunt> ans = foreach mat generate data,TAN(data);
+grunt> dump ans; 
+(5.0,-3.380515006246586)
+(16.0,0.3006322420239034)
+(9.0,-0.45231565944180985)
+(2.5,-0.7470222972386603)
+(2.0,-2.185039863261519)
+(3.5,0.3745856401585947)
+(3.14,-0.0015925500319664656)
+(-2.2,1.37382291908733)
+---------------------------------------------------------------------------------------------
+CEIL():
+This function is used to get the value of an expression rounded up to the nearest integer.
+grunt> ans = foreach mat generate data,CEIL(data);
+grunt> dump ans; 
+(5.0,5.0)
+(16.0,16.0)
+(9.0,9.0)
+(2.5,3.0)
+(2.0,2.0)
+(3.5,4.0)
+(3.14,4.0)
+(-2.2,-2.0)
+---------------------------------------------------------------------------------------------
+FLOOR():
+To get the value of an expression rounded down to the nearest integer.
+grunt> ans = foreach mat generate data,FLOOR(data);
+grunt> dump ans; 
+(5.0,5.0)
+(16.0,16.0)
+(9.0,9.0)
+(2.5,2.0)
+(2.0,2.0)
+(3.5,3.0)
+(3.14,3.0)
+(-2.2,-3.0)
+---------------------------------------------------------------------------------------------
+ROUND():
+To get the value of an expression rounded to an integer (if the result type is float) or rounded to a long (if 
+the result type is double).
+grunt> ans = foreach mat generate data,ROUND(data);
+grunt> dump ans; 
+(5.0,5)
+(16.0,16)
+(9.0,9)
+(2.5,3)
+(2.0,2)
+(3.5,4)
+(3.14,3)
+(-2.2,-2)
+---------------------------------------------------------------------------------------------
+EXP():
+This function is used to get the Euler’s number e raised to the power of x.
+grunt> ans = foreach mat generate data, EXP(data);
+grunt> dump ans; 
+(5.0,148.4131591025766)
+(16.0,8886110.520507872)
+(9.0,8103.083927575384)
+(2.5,12.182493960703473)
+(2.0,7.38905609893065)
+(3.5,33.11545195869231)
+(3.14,23.103869282414397)
+(-2.2,0.1108031530788277)
+---------------------------------------------------------------------------------------------
+LOG10():
+To get the base 10 logarithm of an expression.
+grunt> ans = foreach mat generate data,LOG10(data);
+grunt> dump ans; 
+(5.0,0.6989700043360189)
+(16.0,1.2041199826559248)
+(9.0,0.9542425094393249)
+(2.5,0.3979400086720376)
+(2.0,0.3010299956639812)
+(3.5,0.5440680443502757)
+(3.14,0.4969296625825472)
+(-2.2,NaN)
+---------------------------------------------------------------------------------------------
+LOG():
+To get the natural logarithm (base e) of an expression.
+grunt> ans = foreach mat generate data,LOG(data);
+grunt> dump ans; 
+(5.0,1.6094379124341003)
+(16.0,2.772588722239781)
+(9.0,2.1972245773362196)
+(2.5,0.9162907318741551)
+(2.0,0.6931471805599453)
+(3.5,1.252762968495368)
+(3.14,1.1442228333291342)
+(-2.2,NaN)
