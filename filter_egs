@@ -1,0 +1,143 @@
+Create the following data file
+[cloudera@localhost ~]$ gedit doctor
+Milan,1001,5,apollo,500
+Jay,1002,10,apollo,500
+lalit,1003,20,manipal,500
+Mohit,1004,15,columbia,600
+Chauhan,1005,30,narayana,550
+Suraj,1006,25,manipal,650
+[cloudera@localhost ~]$ pig -x local
+grunt> clear
+grunt> doc = load '/home/cloudera/doctor' using PigStorage(',') as 
+ (name:chararray, id:int, exp:int, hosp:chararray, fees:int);
+grunt> dump doc;
+Q) Display the name of the doctor and hospital.
+grunt> a = foreach doc generate name,hosp;
+grunt> dump a;
+(Milan,apollo)
+(Jay,apollo)
+(lalit,manipal)
+(Mohit, columbia)
+(Chauhan,narayana)
+(Suraj,manipal)
+Q) Display the details of doctors who have more than 10 years of experience 
+grunt> a = filter doc by exp>10;
+grunt>dump a;
+(lalit,1003,20,manipal,500)
+(Mohit,1004,15, columbia,600)
+(Chauhan,1005,30,narayana,550)
+(Suraj,1006,25,manipal,650)
+Q)Display the details of doctor who works in apollo hospital.
+grunt> a = filter doc by hosp=='apollo';
+grunt> dump a;
+(Milan,1001,5,apollo,500)
+(Jay,1002,10,apollo,500)
+Q)Display doctor name, docid who works in manipal hospital.
+grunt> a = filter doc by hosp=='manipal';
+grunt> ans = foreach a generate name,id;
+grunt> dump ans;
+(lalit,1003)
+(Suraj,1006)
+Q) List different fees taken by various doctors.
+grunt> a = foreach doc generate fees;
+grunt> ans = distinct a;
+grunt> dump ans;
+(500)
+(550)
+(650)
+(600)
+Q)Display the details of doctor whose experience is more than 20 yrs but not working in manipal.
+grunt> a = filter doc by exp>20 and hosp!='manipal';
+grunt> dump a;
+(Chauhan,1005,30,narayana,550)
+ (OR)
+grunt> a = filter doc by exp>20 and not(hosp=='manipal');
+grunt> dump a;
+(Chauhan,1005,30,narayana,550)
+Q)Display docname, fees, fees%10
+grunt> a = foreach doc generate name, fees,fees%10;
+grunt> dump a;
+(Milan,500,0)
+(Jay,500,0)
+(lalit,500,0)
+(Mohit,600,0)
+(Chauhan,550,50)
+(Suraj,650,50)
+Q)Display docname,hospname,fees,fees after 10 percentage hike.
+grunt> a = foreach doc generate name,hosp, fees,fees*1.1;
+grunt> dump a;
+(Milan,apollo,500,550.0)
+(Jay,apollo,500,550.0)
+(lalit,manipal,500,550.0)
+(Mohit, columbia ,600,660)
+(Chauhan,narayana,550,605.0)
+(Suraj,manipal,650,715.0000000000001)
+Q) Display true if experience of doctor is above 10; else display false.
+grunt> a = foreach doc generate name,exp,(exp>10?'true':'false');
+grunt> dump a;
+(Milan,5,false)
+(Jay,10,false)
+(lalit,20,true)
+(Mohit,15,true)
+(Chauhan,30,true)
+(Suraj,25,true)
+Q)Display only hospital name, fees by taking into consideration that some concession is going on for all branches 
+of apollo hospital by rs 200. So display new fees for apollo hospitals and same current fees for other hospitals.
+grunt> a = foreach doc generate hosp,(hosp=='apollo'?fees-200:fees);
+grunt> dump a;
+(apollo,300)
+(apollo,300)
+(manipal,500)
+(columbia,600)
+(narayana,550)
+(manipal,650)
+Q)Display the details of doctor who is either taking fees above rs 500 or whose experience is above 20 years.
+grunt> a = filter doc by fees>500 or exp>20; (OR)
+grunt> a = filter doc by (fees>500) or (exp>20); (OR)
+grunt> a = filter doc by $4>500 or $2>20;
+grunt> dump a;
+(Mohit,1004,15,columbia,600)
+(Chauhan,1005,30,narayana,550)
+(Suraj,1006,25,manipal,650)
+Q) Display the details of doctor whose name ends with ‘an’
+grunt> a = filter doc by name matches '.*an';
+grunt> dump a;
+(Milan,1001,5,apollo,500)
+(Chauhan,1005,30,narayana,550)
+Q) Display the details of doctor whose name begins with ‘S’
+grunt> a = filter doc by name matches 'S.*';
+(Suraj,1006,25,manipal,650)
+Q) Display the details of doctor whose name has ‘a’ as substring
+grunt> a = filter doc by name matches '.*a.*';
+(Milan,1001,5,apollo,500)
+(Jay,1002,10,apollo,500)
+(lalit,1003,20,manipal,500)
+(Chauhan,1005,30,narayana,550)
+(Suraj,1006,25,manipal,650)
+Q) Display the details of doctor whose name has substring ‘it’ 
+grunt> a = filter doc by name matches '.*it.*';
+(lalit,1003,20,manipal,500)
+(Mohit,1004,15,columbia,600)
+Q) Display the details of doctor whose hospital name has substring ‘a’ 
+grunt> a = filter doc by hosp matches '.*a.*';
+(Milan,1001,5,apollo,500)
+(Jay,1002,10,apollo,500)
+(lalit,1003,20,manipal,500)
+(Mohit,1004,15,columbia,600)
+(Chauhan,1005,30,narayana,550)
+(Suraj,1006,25,manipal,650)
+Q)Perform grouping of tuples wrt hospital name.
+grunt> gr = group doc by hosp; 
+grunt> dump gr;
+(apollo,{(Milan,1001,5,apollo,500),(Jay,1002,10,apollo,500)})
+(manipal,{(lalit,1003,20,manipal,500),(Suraj,1006,25,manipal,650)})
+(columbia,{(Mohit,1004,15,columbia,600)})
+(narayana,{(Chauhan,1005,30,narayana,550)})
+Q)Display hospital name, doc names on screen for each hospital.
+grunt> gr = group doc by hosp; 
+grunt> a = foreach gr generate group,doc.name;
+grunt> dump a;
+(apollo,{(Milan),(Jay)})
+(manipal,{(lalit),(Suraj)})
+(columbia,{(Mohit)})
+(narayana,{(Chauhan)})
