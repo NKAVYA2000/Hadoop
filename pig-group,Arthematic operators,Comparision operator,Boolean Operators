@@ -1,0 +1,43 @@
+
+
+grunt> g = group student by age;
+grunt> dump g;
+
+(20,{(ram,chennai,20)})
+(21,{(krish,mangalore,21)})
+(23,{(ravi,bangalore,23),(rahul,chennai,23),(john,chennai,23)})
+(24,{(raju,bangalore,24)})
+(25,{(anu,delhi,25)})
+(26,{(sita,delhi,26)})
+(,{(,,)})
+
+
+********************************************************************
+Arthematic operators,Comparision operator,Boolean Operators
+
+grunt> f = foreach student generate age,age+10;
+grunt> dump f;
+
+(20,30)
+(24,34)
+(23,33)
+(23,33)
+(21,31)
+(23,33)
+(26,36)
+(25,35)
+(,)
+
+grunt> F = filter student by age>25;
+grunt> dump F;
+(sita,delhi,26)
+
+grunt> e = filter student by age>21 and age<24;
+grunt> dump e;
+
+(ravi,bangalore,23)
+(rahul,chennai,23)
+(john,chennai,23)
+
+             
+ 
