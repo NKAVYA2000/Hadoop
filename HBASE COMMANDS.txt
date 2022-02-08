@@ -7,7 +7,11 @@ Version 0.94.6-cdh4.4.0, rUnknown, Tue Sep  3 20:09:51 PDT 2013
 
 hbase(main):003:0> create 'emp1', 'personaldata', 'professionaldata'
 0 row(s) in 1.4290 seconds
+####################Command to create-for verions###################################
+create 'emp',{NAME=>'personaldata',VERSIONS=>5},{NAME=>'professionaldata',VERSIONS=>5}
 
+
+###############################################################################################
 => Hbase::Table - emp1
 hbase(main):004:0> list
 TABLE                                                                                                                                                        
